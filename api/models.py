@@ -11,8 +11,8 @@ class organization(models.Model):
     phone = models.IntegerField()
     operation_hours = models.CharField(max_length=200)
 
-    services = models.ManyToManyField(service)
-    eligibilities = models.ManyToManyField(eligibility)
+    services = models.ManyToManyField(service, related_name="organizations")
+    eligibilities = models.ManyToManyField(eligibility, related_name="organizations")
 
     class Meta:
         ordering = ['name']
