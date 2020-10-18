@@ -53,12 +53,12 @@ class org(APIView):
 
     def post(self, request):
         organization_data = JSONParser().parse(request)
-        address_data = {street: organization_data.street,
-                        city: organization_data.city,
-                        state: "IL",
-                        zipcode: organization_data.zipcode,
-                        }
-        address_obj = objects.address.create(address_data)
+        # address_data = {street: organization_data.street,
+        #                 city: organization_data.city,
+        #                 state: "IL",
+        #                 zipcode: organization_data.zipcode,
+        #                 }
+        # address_obj = objects.address.create(address_data)
 
 
         serializer = OrganizationSerializer(data=organization_data)
@@ -71,10 +71,10 @@ class org_list(APIView):
     
     def get(self, request):
         params = request.query_params
-        org_name = params.get('name', 0)
-        org = organization.objects.get(name=org_name)
-        serializer = OrganizationSerializer(org)
-        return JsonResponse(serializer.data)
+
+        org = organization.objects.all()
+        serializer = OrganizationSerializer(org, many=True)
+        return JsonResponse(serializer.data, safe=False)
 
     def put(self, request):
         organization_data = JSONParser().parse(request) 

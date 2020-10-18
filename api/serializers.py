@@ -34,10 +34,10 @@ class IJFSerializer(serializers.ModelSerializer):
                   'requestinfo')
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    address = AddressSerializer()
-    services = ServiceSerializer(many=True)
-    eligibilities = EligibilitySerializer(many=True)
-    ijf = IJFSerializer()
+    # address = AddressSerializer()
+    # services = ServiceSerializer(many=True)
+    # eligibilities = EligibilitySerializer(many=True)
+    # ijf = IJFSerializer()
 
     def create(self, validated_data):
         new_org = organization.objects.create(name = validated_data.pop('name'),
@@ -67,17 +67,20 @@ class OrganizationSerializer(serializers.ModelSerializer):
         # eligibilities = validated_data.pop('eligibilities')
         # for item in eligibilities:
         #     eligibility.objects.create(org=new_org)
+        
+        return new_org
 
     class Meta:
         model = organization
         fields = ('name',
-                  'contact_name'
+                  'contact_name',
                   'email',
                   'website',
                   'fax',
                   'phone',
-                  'address',
-                  'services',
-                  'eligibilities',
-                  'ijf',
+                  'phone_ext',
+                #   'address',
+                #   'services',
+                #   'eligibilities',
+                #   'ijf',
                   )
