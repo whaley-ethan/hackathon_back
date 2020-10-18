@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from rest_framework.views import APIView
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
@@ -10,20 +10,19 @@ from rest_framework.decorators import api_view
 
 # Create your views here.
 
-@api_view(['GET', 'PUT'])
-def org(request):
-    params = request.query_params
-    service_param = params.get('service', None)
-    military_status = params.get('military_status', None)
-    service_era = params.get('service_era', None)
-    discharge_status = params.get('discharge_status', None)
-    combat_service = params.get('combat_service', None)
-    dd_214 =  params.get('dd_214', None)
-    disability = params.get('disability', None)
-    zipcode = params.get('zipcode', None)
-    # distance = params.get('distance', None)
+class org(APIView):
 
-    if request.method == 'GET':
+    def get(self, request, format=None):
+        params = request.query_params
+        service_param = params.get('service', None)
+        military_status = params.get('military_status', None)
+        service_era = params.get('service_era', None)
+        discharge_status = params.get('discharge_status', None)
+        combat_service = params.get('combat_service', None)
+        dd_214 =  params.get('dd_214', None)
+        disability = params.get('disability', None)
+        zipcode = params.get('zipcode', None)
+        # distance = params.get('distance', None)
         list_of_orgs = organization.objects.all()
         
         if service is not None:
@@ -53,7 +52,7 @@ def org(request):
 
         return JsonResponse(serializer.data, safe=False)
 
-    elif request.method == 'PUT':
+    def put(self, request):
         organization_data = JSONParser().parse(request)
         serializer = OrganizationSerializer(data=organization_data)
         if serializer.is_valid():
@@ -61,33 +60,19 @@ def org(request):
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED) 
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        count = organization.objects.all().delete()
-        return JsonResponse({'message': '{} organizations were deleted successfully!'.format(count[0])}, 
-                            status=status.HTTP_204_NO_CONTENT)
-
-    return
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def org_list(request):
-    params = request.query_params
-    key = params.get('key', 0)
-    org = organization.objects.get(id=key)
-    if request.method == 'GET':
+class org_list(APIView):
+    
+    def get(self, request):
+        params = request.query_params
+        key = params.get('key', 0)
+        org = organization.objects.get(id=key)
         serializer = OrganizationSerializer(org)
         return JsonResponse(serializer.data)
 
-    elif request.method == 'PUT':
+    def put(self, request):
         organization_data = JSONParser().parse(request) 
         serializer = OrganizationSerializer(org, data=organization_data) 
         if serializer.is_valid(): 
             serializer.save() 
             return JsonResponse(serializer.data) 
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-
-    elif request.method == 'DELETE':
-        organization.delete() 
-        return JsonResponse({'message': 'Serial was deleted successfully!'}, 
-                            status=status.HTTP_204_NO_CONTENT)
-
-    return
