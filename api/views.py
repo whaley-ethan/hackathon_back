@@ -4,8 +4,8 @@ from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
  
-from .models import organization, contact, address, service, eligibility, financial_info, ijf
-from .serializers import OrganizationSerializer, ContactSerializer, AddressSerializer, ServiceSerializer, EligibilitySerializer, FinancialSerializer, IJFSerializer
+from .models import organization, address, service, eligibility, ijf
+from .serializers import OrganizationSerializer, AddressSerializer, ServiceSerializer, EligibilitySerializer, IJFSerializer
 from rest_framework.decorators import api_view
 
 # Create your views here.
@@ -21,7 +21,6 @@ class org(APIView):
         combat_service = params.get('combat_service', None)
         dd_214 =  params.get('dd_214', None)
         disability = params.get('disability', None)
-        zipcode = params.get('zipcode', None)
         # distance = params.get('distance', None)
         list_of_orgs = organization.objects.all()
         
@@ -52,8 +51,16 @@ class org(APIView):
 
         return JsonResponse(serializer.data, safe=False)
 
-    def put(self, request):
+    def post(self, request):
         organization_data = JSONParser().parse(request)
+        address_data = {street: organization_data.street,
+                        city: organization_data.city,
+                        state: "IL",
+                        zipcode: organization_data.zipcode,
+                        }
+        address_obj = objects.address.create(address_data)
+
+
         serializer = OrganizationSerializer(data=organization_data)
         if serializer.is_valid():
             serializer.save()
@@ -64,8 +71,8 @@ class org_list(APIView):
     
     def get(self, request):
         params = request.query_params
-        key = params.get('key', 0)
-        org = organization.objects.get(id=key)
+        org_name = params.get('name', 0)
+        org = organization.objects.get(name=org_name)
         serializer = OrganizationSerializer(org)
         return JsonResponse(serializer.data)
 
