@@ -21,7 +21,7 @@ def org(request):
     dd_214 =  params.get('dd_214', None)
     disability = params.get('disability', None)
     zipcode = params.get('zipcode', None)
-    distance = params.get('distance', None)
+    # distance = params.get('distance', None)
 
     if request.method == 'GET':
         list_of_orgs = organization.objects.all()
@@ -47,52 +47,47 @@ def org(request):
         if disability is not None:
             eligibilities = eligibility.objects.filter(value=disability) # Yes or No
             list_of_orgs = list_of_orgs.filter(eligibilities__in=eligibilities)
+        serializer = OrganizationSerializer(data=list_of_orgs)
+        serializer.is_valid()
         
 
-        return JsonResponse(serial_serializer.data, safe=False)
+        return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'PUT':
-        serial_data = JSONParser().parse(request)
-        serial_serializer = SerialSerializer(data=serial_data)
-        if serial_serializer.is_valid():
-            serial_serializer.save()
-            return JsonResponse(serial_serializer.data, status=status.HTTP_201_CREATED) 
-        return JsonResponse(serial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        organization_data = JSONParser().parse(request)
+        serializer = OrganizationSerializer(data=organization_data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        count = serialnum.objects.all().delete()
-        return JsonResponse({'message': '{} serialnums were deleted successfully!'.format(count[0])}, 
+        count = organization.objects.all().delete()
+        return JsonResponse({'message': '{} organizations were deleted successfully!'.format(count[0])}, 
                             status=status.HTTP_204_NO_CONTENT)
 
     return
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def org_list(request, key):
-    serial = serialnum.objects.get(number=key)
+def org_list(request):
+    params = request.query_params
+    key = params.get('key', 0)
+    org = organization.objects.get(id=key)
     if request.method == 'GET':
-        serial_serializer = SerialSerializer(serial)
-        return JsonResponse(serial_serializer.data)
+        serializer = OrganizationSerializer(org)
+        return JsonResponse(serializer.data)
 
     elif request.method == 'PUT':
-        serial_data = JSONParser().parse(request) 
-        serial_serializer = SerialSerializer(serial, data=serial_data) 
-        if serial_serializer.is_valid(): 
-            serial_serializer.save() 
-            return JsonResponse(serial_serializer.data) 
-        return JsonResponse(serial_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        organization_data = JSONParser().parse(request) 
+        serializer = OrganizationSerializer(org, data=organization_data) 
+        if serializer.is_valid(): 
+            serializer.save() 
+            return JsonResponse(serializer.data) 
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
     elif request.method == 'DELETE':
-        serial.delete() 
+        organization.delete() 
         return JsonResponse({'message': 'Serial was deleted successfully!'}, 
                             status=status.HTTP_204_NO_CONTENT)
-
-    return
-
-@api_view(['GET'])
-def serial_list_published(request):
-    serials = serialnum.objects.filter(published=True)      
-    if request.method == 'GET': 
-        serial_serializer = SerialSerializer(serials, many=True)
-        return JsonResponse(serial_serializer.data, safe=False)
 
     return
