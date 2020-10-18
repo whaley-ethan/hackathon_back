@@ -5,28 +5,15 @@ from django.db import models
 # Main organization model
 class organization(models.Model):
     name = models.CharField(max_length=200)
-    website = models.CharField(max_length=200)
+    contact_name = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
+    website = models.CharField(max_length=200)
     fax = models.CharField(max_length=200, default="")
     phone = models.IntegerField()
-    operation_hours = models.CharField(max_length=200)
+    phone_ext = models.IntegerField()
 
-    services = models.ManyToManyField(service)
-    eligibilities = models.ManyToManyField(eligibility)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-# Specific contact person info
-class contact(models.Model):
-    org = models.OneToOneField(organization, on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
-    title = models.CharField(max_length=200)
-    email = models.CharField(max_length=200)
-    phone = models.IntegerField()
+    services = models.ManyToManyField('service', related_name="organizations")
+    eligibilities = models.ManyToManyField('eligibility', related_name="organizations")
 
     class Meta:
         ordering = ['name']
@@ -69,13 +56,7 @@ class eligibility(models.Model):
 
     def __str__(self):
         return self.value
-
-# Financial Info
-class financial_info(models.Model):
-    org = models.OneToOneField(organization, on_delete=models.CASCADE)
-    limit = models.CharField(max_length=200)
-    turnaround = models.CharField(max_length=200)
-
+        
 # IJF participation info
 class ijf(models.Model):
     org = models.OneToOneField(organization, on_delete=models.CASCADE)
